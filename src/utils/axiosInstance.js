@@ -1,45 +1,39 @@
-import axios from "axios"
-import { BASE_URL } from "./apiPaths"
+import axios from "axios";
+import { BASE_URL } from "./apiPaths";
 
 const axiosInstance = axios.create({
-    baseURL: BASE_URL,
-    timeout: 10000,
-    headers: {
-        "Content-Type":"application/json",
-        Accept: "application/json"
-    }
+  baseURL: BASE_URL?.replace(/\/+$/, ""), // Quita barras duplicadas si las hubiera
+  timeout: 10000,
+  withCredentials: true, // ✅ IMPORTANTE PARA PRODUCCIÓN
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
 });
 
-// Interceptores para agregar el token de autorización y manejar errores
+// Interceptores para agregar Token
 axiosInstance.interceptors.request.use(
-    (config) => {
-        const accessToken = localStorage.getItem("token");
-        if (accessToken) {
-            config.headers.Authorization = `Bearer ${accessToken}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
+  (config) => {
+    const accessToken = localStorage.getItem("token");
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
+    return config;
+  },
+  (error) => Promise.reject(error)
 );
 
+// Manejo de respuestas
 axiosInstance.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    (error) => {
-        if (error.response) {
-            if (error.response.status === 401) {
-                window.location.href = "/login";
-            } else if (error.response.status === 500) {
-                console.error("Error del servidor, por favor vuelve a intentar")
-            }
-        } else if (error.code === "ECONNABORTED") {
-            console.error("Se agotó el tiempo de solicitud. Inténtalo de nuevo.")
-        }
-        return Promise.reject(error);
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      window.location.href = "/login";
+    } else if (error?.response?.status === 500) {
+      console.error("Error del servidor. Intenta nuevamente");
     }
+    return Promise.reject(error);
+  }
 );
 
 export default axiosInstance;
