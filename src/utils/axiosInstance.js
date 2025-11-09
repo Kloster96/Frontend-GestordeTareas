@@ -3,7 +3,7 @@ import { BASE_URL } from "./apiPaths";
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL?.replace(/\/+$/, ""), // Quita barras duplicadas si las hubiera
-  timeout: 40000,
+  timeout: 10000,
   withCredentials: true, // ✅ IMPORTANTE PARA PRODUCCIÓN
   headers: {
     "Content-Type": "application/json",
@@ -24,8 +24,24 @@ axiosInstance.interceptors.request.use(
 );
 
 // Manejo de respuestas
+// Manejo de respuestas
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Forzar HTTPS en URLs de imágenes
+    if (typeof response?.data === "object" && response.data !== null) {
+      const convertHttpToHttps = (obj) => {
+        for (let key in obj) {
+          if (typeof obj[key] === "string" && obj[key].startsWith("http://")) {
+            obj[key] = obj[key].replace("http://", "https://");
+          } else if (typeof obj[key] === "object" && obj[key] !== null) {
+            convertHttpToHttps(obj[key]); // Recursivo para listas y objetos anidados
+          }
+        }
+      };
+      convertHttpToHttps(response.data);
+    }
+    return response;
+  },
   (error) => {
     if (error?.response?.status === 401) {
       window.location.href = "/login";
