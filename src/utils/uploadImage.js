@@ -1,16 +1,22 @@
 import { API_PATHS } from "./apiPaths";
 import axiosInstance from "./axiosInstance";
 
-const updloadImage = async (imageFile) => {
+const uploadImage = async (imageFile) => {
   const formData = new FormData();
-  formData.append("file", imageFile);
+  formData.append("image", imageFile); // ✅ NOMBRE CORRECTO
 
   try {
-    const response = await axiosInstance.post(API_PATHS.IMAGE.UPLOAD_IMAGE, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
+    const response = await axiosInstance.post(
+      API_PATHS.IMAGE.UPLOAD_IMAGE,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        timeout: 60000, // ✅ 60 segundos para Render
       }
-    });
+    );
+
     return response.data;
   } catch (error) {
     console.error("Error al subir la imagen:", error);
@@ -18,4 +24,4 @@ const updloadImage = async (imageFile) => {
   }
 };
 
-export default updloadImage;
+export default uploadImage;
