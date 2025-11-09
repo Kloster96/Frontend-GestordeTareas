@@ -3,7 +3,7 @@ import { BASE_URL } from "./apiPaths";
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL?.replace(/\/+$/, ""), // Quita barras duplicadas si las hubiera
-  timeout: 10000,
+  timeout: 60000,
   withCredentials: true, // ✅ IMPORTANTE PARA PRODUCCIÓN
   headers: {
     "Content-Type": "application/json",
