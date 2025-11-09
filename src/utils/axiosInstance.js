@@ -24,24 +24,8 @@ axiosInstance.interceptors.request.use(
 );
 
 // Manejo de respuestas
-// Manejo de respuestas
 axiosInstance.interceptors.response.use(
-  (response) => {
-    // Forzar HTTPS en URLs de imágenes
-    if (typeof response?.data === "object" && response.data !== null) {
-      const convertHttpToHttps = (obj) => {
-        for (let key in obj) {
-          if (typeof obj[key] === "string" && obj[key].startsWith("http://")) {
-            obj[key] = obj[key].replace("http://", "https://");
-          } else if (typeof obj[key] === "object" && obj[key] !== null) {
-            convertHttpToHttps(obj[key]); // Recursivo para listas y objetos anidados
-          }
-        }
-      };
-      convertHttpToHttps(response.data);
-    }
-    return response;
-  },
+  (response) => response,
   (error) => {
     if (error?.response?.status === 401) {
       window.location.href = "/login";
